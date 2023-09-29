@@ -1,23 +1,14 @@
 import psycopg2
-from psycopg2 import Error
+
+from cinema_worker import Cinema_worker
+from context_manager import ContextManager
+
+    
+    
 
 
-
-
-class ContextManager(): 
-    def __init__(self, connection, cursor):
-        self.connection = connection
-        self.cursor = cursor
-          
-    def __enter__(self): 
-        return self.cursor
-      
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_type is not None:
-            raise Error('Problem with database')
-        self.cursor.close()
-        self.connection.commit()
-        print('Connection Closed')
+        
+        
 
 connection = psycopg2.connect(user="postgres",
                                   password="123",
@@ -27,9 +18,9 @@ connection = psycopg2.connect(user="postgres",
 
 
 with ContextManager(connection, connection.cursor()) as cursor:
-    cursor.execute('SELECT * FROM users_usr LIMIT 1')
-    a = cursor.fetchall()
-    print(a)
+    x = Cinema_worker(connection, cursor)
+    x.delete_user('wkgprd')
+    
     
 
 

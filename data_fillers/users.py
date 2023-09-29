@@ -24,4 +24,4 @@ def users(cursor,x):
         sub = randint(0,1)
         print(user, mail, pswd, date_reg, ver, delited, sub)
         cursor.execute("INSERT INTO users (username, mail, passwd, date_reg, verified, deleted, sub) VALUES(%s,%s,%s,%s,%s,%s,%s)",
-                       (user,mail,pswd,date_reg,bool(ver),bool(delited),bool(sub)))
+                       (user,mail,pswd,date_reg,bool(ver),False,bool(sub)))

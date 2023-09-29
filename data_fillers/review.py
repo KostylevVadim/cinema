@@ -56,6 +56,7 @@ def review(cursor, n):
         date_reg = date_reg + timedelta(days=reg_delta)
         
         var = record4[0][0]
-        print(a , " ", rate, " ", inner_rate, " ",film, " ", users, " ",date_reg, " ", var)
+        
         cursor.execute("INSERT INTO review (rate, txt, review_rate, dat, usr_id, film_id, varified) VALUES (%s,%s,%s,%s,%s,%s,%s)",
          (rate,a, inner_rate, date_reg, users, film, var))
+    cursor.execute("SELECT film_select()")
