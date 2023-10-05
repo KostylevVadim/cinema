@@ -2,6 +2,8 @@ import psycopg2
 from datetime import date, timedelta
 from psycopg2 import Error
 from cache import Cache
+import json
+
 class Cinema_worker:
     
     def __init__(self, connection ,cursor):
@@ -92,3 +94,40 @@ class Cinema_worker:
     
     def delete_user(self, username):
         self.__cursor.execute("UPDATE users SET deleted=True WHERE username=%s", (username,))
+
+    def __getting_data(self, table_name):
+        st = 'SELECT * FROM ' + table_name
+        self.__cursor.execute(st)
+        return self.__cursor.fetchall()
+
+    def __transform_to_list_of_dicts(self, cols, data):
+        lst = []
+        for dat in data:
+            dict ={}
+            for i in range(len(cols)):
+                dict[cols[i]] = dat[i]
+            lst.append(dict)
+        return lst
+
+
+    def dump_table_to_json(self, table_name):
+        self.__cursor.execute("""SELECT table_name FROM information_schema.tables
+                    WHERE table_schema = 'public'""")
+        y = self.__cursor.fetchall()
+        table_names = [table[0] for table in y]
+        for table in table_names:
+            if table == table_name:
+                data = self.__getting_data(table_name)
+                
+                self.__cursor.execute("Select * FROM "+ table_name+" LIMIT 0")
+                cols = [desc[0] for desc in self.__cursor.description]
+                lst = self.__transform_to_list_of_dicts(cols,data)
+                x= {i:elem for i,elem in enumerate(lst)}
+                with open(table_name+'.json', "w+") as json_file:
+                    
+                    
+                    string = x
+                    json.dump(x,json_file, default=str)
+
+
+
