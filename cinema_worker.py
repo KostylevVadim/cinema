@@ -1,11 +1,13 @@
 import psycopg2
 from datetime import date, timedelta
 from psycopg2 import Error
+from cache import Cache
 class Cinema_worker:
     
     def __init__(self, connection ,cursor):
         self.__connection = connection
         self.__cursor = cursor
+        self.__cache = Cache([], 10)
     
     def __new__(cls, connection, cursor):
         if 'cinema' in str(connection):
@@ -67,14 +69,26 @@ class Cinema_worker:
     def add_person(self, fullname, born_date, death_date, ful_bio):
         self.__cursor.execute("INSERT INTO person (per_name, birth_date, death_date, bio) VALUES(%s,%s,%s,%s)",
             (fullname,born_date, death_date,ful_bio))
-    def enter_your_command(self, string: str, variebles = (0,)):
-        self.__cursor.execute(string, variebles)
+    
+    def your_select_command(self, string: str, variebles = (0,)):
+        z = string+ ' '.join(variebles)
+        cached_data= self.__cache.get_data()
+        print(cached_data)
+        for dat in cached_data:
+            select = dat[0]
+            if select == z:
+                return dat[1]
+            
         x=string.split(" ")
         if x[0] == "SELECT":
+            self.__cursor.execute(string, variebles)
             y = self.__cursor.fetchall()
+            to_cahe = (z, tuple(y))
+            self.__cache.add(to_cahe)
             return y
-        
+    
     def restore_user(self, username:str):
         self.__cursor.execute("UPDATE users SET deleted=False WHERE username=%s", (username,))
+    
     def delete_user(self, username):
         self.__cursor.execute("UPDATE users SET deleted=True WHERE username=%s", (username,))
