@@ -10,7 +10,10 @@ class ContextManager():
       
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if exc_type is not None:
-            raise Error('Problem with database')
-        self.cursor.close()
-        self.connection.commit()
-        print('Connection Closed')
+            self.cursor.close()
+            self.connection.rollback()
+            print('Error')
+        else:    
+            self.cursor.close()
+            self.connection.commit()
+            print('Connection Closed')
